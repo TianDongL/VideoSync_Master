@@ -178,7 +178,7 @@ const TranslationPanel: React.FC<TranslationPanelProps> = ({
                         <div
                             key={idx}
                             ref={el => itemRefs.current[idx] = el}
-                            onClick={() => onPlaySegment?.(seg.start, seg.end)}
+                            // onClick={() => onPlaySegment?.(seg.start, seg.end)} // Disabled per user request (don't play original audio on click)
                             style={{
                                 display: 'flex',
                                 gap: '10px',

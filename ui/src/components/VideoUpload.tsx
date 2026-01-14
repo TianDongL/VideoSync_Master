@@ -136,15 +136,22 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ onFileSelected, onTimeUpdate,
     const handleTimeUpdate = () => {
         if (activeRef.current) {
             const now = activeRef.current.currentTime;
+            let reportTime = now;
 
             if (playUntilTime !== undefined && playUntilTime !== null) {
                 if (now >= playUntilTime) {
                     activeRef.current.pause();
+                    // Clamp reported time to playUntilTime to prevent UI jumping to next segment
+                    reportTime = playUntilTime;
+
+                    // Optional: Reset currentTime to playUntilTime to visually snap back?
+                    // activeRef.current.currentTime = playUntilTime; 
+                    // (Maybe distracting, just clamping report is enough for UI sync)
                 }
             }
 
             if (onTimeUpdate) {
-                onTimeUpdate(now);
+                onTimeUpdate(reportTime);
             }
         }
     };
