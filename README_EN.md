@@ -44,9 +44,12 @@ No cloud APIs, no subscription fees. Use your local GPU to perform **ASR (Speech
 
 ## 📸 Screenshots
 
-| Main Interface | Subtitle Editor |
-| :---: | :---: |
-| ![Main UI](asset/1.png) | ![Subtitle Edit](asset/2.png) |
+| Main Interface | 
+| :---: |
+| ![Main UI](asset/1.png) |
+| Subtitle Editor |
+| :---: |
+| ![Subtitle Edit](asset/2.png) |
 
 ---
 
@@ -160,7 +163,6 @@ PRs and Issues are welcome.
 ---
 
 ## 📜 License
-
 
 *   ✅ **Non-Commercial**: You are free to copy, modify, and distribute the code for **non-commercial purposes only**.
 *   ❌ **No Commercial Use**: Use of this project or its derivatives for commercial gain is strictly prohibited without prior authorization.
