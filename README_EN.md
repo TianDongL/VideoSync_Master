@@ -79,7 +79,7 @@ conda create -n videosync python=3.11
 conda activate videosync
 
 # Install core dependencies
-pip install -r backend/requirements.txt
+pip install -r requirements.txt
 
 # Install PyTorch (Check pytorch.org for your specific CUDA version)
 # Example (CUDA 12.1):
