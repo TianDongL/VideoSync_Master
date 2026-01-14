@@ -76,7 +76,7 @@ cd VideoSync
 
 ```bash
 # 创建并激活环境
-conda create -n videosync python=3.10
+conda create -n videosync python=3.11
 conda activate videosync
 
 # 安装核心依赖

@@ -75,7 +75,7 @@ We strongly recommend using Conda to manage environments.
 
 ```bash
 # Create and activate environment
-conda create -n videosync python=3.10
+conda create -n videosync python=3.11
 conda activate videosync
 
 # Install core dependencies
