@@ -34,8 +34,7 @@ No cloud APIs, no subscription fees. Use your local GPU to perform **ASR (Speech
 
 *   **⚡ Extreme Optimization**
     *   Unique sequential VRAM management: Unloads LLM during TTS generation and vice versa.
-    *   Runs smoothly on consumer-grade GPUs (e.g., RTX 3060 with 6GB-8GB VRAM).
-
+    *   Runs smoothly on consumer-grade GPUs 
 *   **🖥️ Modern UI**
     *   Beautiful interface built with Electron + React.
     *   Real-time log monitoring, visual subtitle editing, and instant video preview.
