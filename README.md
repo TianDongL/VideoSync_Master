@@ -2,15 +2,15 @@
 
 <div align="center">
 
-![VideoSync Logo](https://via.placeholder.com/150?text=VideoSync) 
+![VideoSync Logo](asset/logo.png) 
 
 **One-Click locally running AI Video Dubbing & Translation Tool**
 
-[中文文档](README_CN.md) | [English](README.md)
+[中文文档](README.md) | [English](README_EN.md)
 
 </div>
 
-**VideoSync** 是一个专为 Windows 设计的本地化全自动 AI 视频配音工具。它将业界最强的开源模型整合为一个工作流，旨在实现“一键式”视频语言本地化。
+**VideoSync** 是一个运行在 Windows 和 Linux 上的全自动 AI 视频配音工具。它将业界最强的开源模型整合为一个工作流，旨在实现“一键式”视频语言本地化。
 
 不需要联网 API，不需要高昂的订阅费，利用你的本地显卡即可完成：**ASR 识别 -> 文本翻译 -> 语音克隆 -> 音画对齐**。
 
@@ -42,23 +42,22 @@
 
 ---
 
-## � 界面预览 | Screenshots
+##  界面预览 | Screenshots
 
-*(此处应放置软件运行截图)*
 
 | 主界面 | 字幕编辑 |
 | :---: | :---: |
-| ![Main UI](https://via.placeholder.com/400x250?text=Main+UI) | ![Subtitle Edit](https://via.placeholder.com/400x250?text=Subtitle+Editor) |
+| ![Main UI](asset/1.png) | ![Subtitle Edit](asset/2.png) |
 
 ---
 
-## �🛠️ 环境要求 | Requirements
+## 🛠️ 环境要求 | Requirements
 
 为了保证流畅运行，建议您的硬件配置如下：
 
 *   **操作系统**: Windows 10/11 (x64) 或 Linux (源码运行)
-*   **显卡 (GPU)**: NVIDIA GeForce RTX 3060 或更高 (显存 ≥ 6GB)
-*   **驱动**: NVIDIA Studio/Game Ready Driver (CUDA 11.8+)
+*   **显卡 (GPU)**: NVIDIA GeForce RTX 3060 或更高 (显存 ≥ 8GB)
+*   **驱动**: NVIDIA Studio/Game Ready Driver 
 *   **运行库**: Python 3.10+, Node.js 16+ (仅源码运行需要)
 
 ---
@@ -84,7 +83,7 @@ pip install -r backend/requirements.txt
 
 # 安装 PyTorch (建议根据您的 CUDA 版本去 pytorch.org 获取安装命令)
 # 示例 (CUDA 11.8):
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 ```
 
 ### 3. 前端配置 (Frontend Setup)

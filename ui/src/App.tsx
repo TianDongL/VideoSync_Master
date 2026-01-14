@@ -729,7 +729,16 @@ function App() {
         </div>
 
         <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', margin: '10px 0', padding: '10px', background: 'rgba(0, 0, 0, 0.4)', borderRadius: '8px', color: '#fff', fontSize: '0.9em', backdropFilter: 'blur(5px)' }}>
-          天冬制作 Made by Tiandong
+          <a
+            href="https://space.bilibili.com/32275117"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: '#fff', textDecoration: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+            onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
+            onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}
+          >
+            天冬制作 Made by Tiandong
+          </a>
         </div>
 
         {/* Hidden Audio Player for controlling playback */}
