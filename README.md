@@ -83,7 +83,7 @@ conda activate videosync
 pip install -r requirements.txt
 
 # 安装 PyTorch (建议根据您的 CUDA 版本去 pytorch.org 获取安装命令)
-# 示例 (CUDA 11.8):
+
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 ```
 
