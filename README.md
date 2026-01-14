@@ -68,7 +68,7 @@
 ### 1. 克隆仓库
 ```bash
 git clone https://github.com/TianDongL/VideoSyncMaster.git
-cd VideoSync
+cd VideoSyncMaster
 ```
 
 ### 2. 后端配置 (Backend Setup)

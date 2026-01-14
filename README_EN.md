@@ -67,7 +67,7 @@ For optimal performance, we recommend the following hardware:
 ### 1. Clone Repository
 ```bash
 git clone https://github.com/TianDongL/VideoSyncMaster.git
-cd VideoSync
+cd VideoSyncMaster
 ```
 
 ### 2. Backend Setup
