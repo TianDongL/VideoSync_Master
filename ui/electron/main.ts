@@ -110,10 +110,10 @@ app.whenReady().then(() => {
       let backendProcess;
 
       if (app.isPackaged) {
-        // In production: resources/backend/python/python.exe running resources/backend/main.py
+        // In production: resources/python/python.exe running resources/backend/main.py
 
-        // Path to portable python exe
-        const pythonExe = path.join(process.resourcesPath, 'backend', 'python', 'python.exe');
+        // Path to portable python exe (Moved to root level in resources)
+        const pythonExe = path.join(process.resourcesPath, 'python', 'python.exe');
         // Path to main script (obfuscated)
         const scriptPath = path.join(process.resourcesPath, 'backend', 'main.py');
 

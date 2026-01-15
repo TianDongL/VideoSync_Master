@@ -57,6 +57,13 @@
         "filter": [
           "**/*"
         ]
+      },
+      {
+        "from": "../dist_backend/python",
+        "to": "python",
+        "filter": [
+          "**/*"
+        ]
       }
     ]
   }

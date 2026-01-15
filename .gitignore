@@ -28,7 +28,7 @@ venv/
 env/
 ENV/
 python/
-backend/python/
+python.zip
 backend/ffmpeg/
 
 # --- Models & Large Files (CRITICAL) ---
