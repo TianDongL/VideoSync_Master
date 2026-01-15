@@ -205,7 +205,7 @@ else:
 
 from asr import run_asr
 from tts import run_tts, run_batch_tts
-from alignment import align_audio, merge_audios_to_video
+from alignment import align_audio, merge_audios_to_video, get_audio_duration
 from llm import LLMTranslator
 import ffmpeg
 import json
@@ -395,6 +395,24 @@ def dub_video(input_path, target_lang, output_path):
         success = run_tts(translated_text, ref_clip_path, tts_output_path, language=target_lang)
         
         if success:
+            # Check duration and align if necessary
+            if duration > 0:
+                try:
+                    current_dur = get_audio_duration(tts_output_path)
+                    if current_dur and current_dur > duration + 0.1:
+                        print(f"    [DubVideo] Segment {idx} duration {current_dur:.2f}s > {duration:.2f}s. Aligning...")
+                        temp_aligned = tts_output_path.replace('.wav', '_aligned_temp.wav')
+                        if align_audio(tts_output_path, temp_aligned, duration):
+                            try:
+                                if os.path.exists(tts_output_path):
+                                     os.remove(tts_output_path)
+                                os.rename(temp_aligned, tts_output_path)
+                                print(f"    [DubVideo] Aligned and overwritten: {tts_output_path}")
+                            except Exception as e:
+                                print(f"    [DubVideo] Failed to overwrite aligned file: {e}")
+                except Exception as e:
+                    print(f"    [DubVideo] Auto-align warning: {e}")
+
             new_audio_segments.append({
                 'start': start,
                 'path': tts_output_path
@@ -489,6 +507,36 @@ def main():
                 
                 if not args.json:
                     print(f"Merging {len(audio_segments)} audio clips into {video_path}")
+
+                # Pre-process segments to ensure they fit in their slots
+                for i, seg in enumerate(audio_segments):
+                    # We need start and end to define slot
+                    if 'start' in seg and 'end' in seg and 'path' in seg:
+                         target_duration = float(seg['end']) - float(seg['start'])
+                         audio_path = seg['path']
+                         
+                         if os.path.exists(audio_path):
+                             current_duration = get_audio_duration(audio_path)
+                             if current_duration:
+                                 # If audio is significantly longer than slot (e.g. > 0.1s diff), compress it.
+                                 if current_duration > target_duration + 0.1:
+                                     print(f"Segment {i} duration ({current_duration:.2f}s) exceeds slot ({target_duration:.2f}s). Aligning...")
+                                     
+                                     # Create aligned path
+                                     aligned_path = audio_path.replace('.wav', '_aligned.wav')
+                                     
+                                     # Align (compress)
+                                     if align_audio(audio_path, aligned_path, target_duration):
+                                         # Update path in segment to point to aligned file
+                                         audio_segments[i]['path'] = aligned_path
+                                     else:
+                                         print(f"Failed to align segment {i}, using original.")
+                                 else:
+                                     pass # Fits or is shorter
+                             else:
+                                 print(f"Could not get duration for {audio_path}")
+                         else:
+                             print(f"Audio file not found: {audio_path}")
                 
                 success = merge_audios_to_video(video_path, audio_segments, output_path)
                 
@@ -570,6 +618,21 @@ def main():
                             pass
                         
                         if success:
+                            if duration > 0: 
+                                try:
+                                    current_dur = get_audio_duration(output_audio)
+                                    if current_dur and current_dur > duration + 0.1:
+                                        print(f"[SingleTTS] Duration {current_dur:.2f}s > {duration:.2f}s. Aligning...")
+                                        temp_aligned = output_audio.replace('.wav', '_aligned_temp.wav')
+                                        if align_audio(output_audio, temp_aligned, duration):
+                                            import shutil
+                                            shutil.move(temp_aligned, output_audio)
+                                            print(f"[SingleTTS] Aligned and overwritten: {output_audio}")
+                                        else:
+                                            print("[SingleTTS] Alignment failed.")
+                                except Exception as e:
+                                    print(f"[SingleTTS] Warning: Auto-alignment failed: {e}")
+
                             result_data = {"success": True, "audio_path": output_audio, "text": translated_text}
                         else:
                             result_data = {"success": False, "error": "TTS generation failed"}
@@ -604,12 +667,8 @@ def main():
                 
                 print(f"Batch generating TTS for {len(segments)} segments...")
 
-                # 1. Prepare tasks and extract references
                 tasks = []
-                # Assume JSON is in the same folder as where we want to save segments?
-                # Or use paths from JSON if available?
-                # Frontend usually knows paths.
-                # Let's assume we save to the folder where json_path is.
+
                 work_dir = os.path.dirname(json_path)
 
                 for i, seg in enumerate(segments):
@@ -617,22 +676,18 @@ def main():
                     start = float(seg.get('start', 0))
                     end = float(seg.get('end', 0))
                     duration = end - start
-                    # Minimum ref duration logic?
-                    # If seg is too short, we might need to expand ref range?
-                    # IndexTTS usually likes 3-10s. If seg is 1s, it might fail to clone well.
-                    # But for now we stick to strict segment timing.
-                    if duration < 1.0: duration = 1.0 # Min duration for ffmpeg extraction safety
                     
-                    # Ref path
+
+                    extraction_duration = duration
+
+                    if duration < 1.0: duration = 1.0 
                     ref_path = os.path.join(work_dir, f"ref_{i}_{start}.wav")
-                    # Output path - prefer existing path in seg or generate new
                     out_path = seg.get('audioPath') 
                     if not out_path:
                         out_path = os.path.join(work_dir, f"segment_{i}.wav")
                     
-                    # Extract Reference
                     try:
-                        ffmpeg.input(video_path, ss=start, t=duration).output(
+                        ffmpeg.input(video_path, ss=start, t=extraction_duration).output(
                             ref_path, acodec='pcm_s16le', ac=1, ar=24000, loglevel="error"
                         ).run(overwrite_output=True)
                     except Exception as e:
@@ -665,6 +720,49 @@ def main():
                     except: pass
                     
                     if res['success']:
+                        # Check alignment
+                        try:
+                            # We need target duration from original segment
+                            # We stored 'index' in task. Retrieve segment from 'segments' list using index?
+                            # Yes, segments[task['index']]
+                            seg_idx = task['index']
+                            if seg_idx < len(segments):
+                                origin_seg = segments[seg_idx]
+                                s_start = float(origin_seg.get('start', 0))
+                                s_end = float(origin_seg.get('end', 0))
+                                slot_dur = s_end - s_start
+                                
+                                audio_p = res['output']
+                                print(f"[DEBUG] Checking segment {seg_idx}: Slot={slot_dur:.2f}s, Path={audio_p}")
+
+                                if os.path.exists(audio_p) and slot_dur > 0:
+                                    curr = get_audio_duration(audio_p)
+                                    print(f"[DEBUG] Segment {seg_idx} Actual Duration: {curr}") # Check if None
+                                    
+                                    if curr and curr > slot_dur + 0.1:
+                                        print(f"[BatchTTS] Segment {seg_idx} duration {curr:.2f}s > {slot_dur:.2f}s. Aligning...")
+                                        temp_aligned = audio_p.replace('.wav', '_aligned_temp.wav')
+                                        if align_audio(audio_p, temp_aligned, slot_dur):
+                                            import shutil
+                                            # Retry loop for windows file lock
+                                            import time
+                                            for _ in range(3):
+                                                try:
+                                                    shutil.move(temp_aligned, audio_p)
+                                                    print(f"[BatchTTS] Aligned and overwritten: {audio_p}")
+                                                    break
+                                                except Exception as move_err:
+                                                    print(f"[BatchTTS] Warning: Move failed {move_err}, retrying...")
+                                                    time.sleep(0.5)
+                                        else:
+                                            print(f"[BatchTTS] align_audio returned False")
+                                    else:
+                                        print(f"[BatchTTS] Segment {seg_idx} fits ({curr} <= {slot_dur + 0.1})")
+                                else:
+                                    print(f"[DEBUG] Skip align: Exists={os.path.exists(audio_p)}, Slot={slot_dur}")
+                        except Exception as e:
+                            print(f"[BatchTTS] Auto-align warning: {e}")
+
                         final_results.append({
                             "index": task['index'],
                             "audio_path": res['output'],

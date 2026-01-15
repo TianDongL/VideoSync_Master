@@ -323,6 +323,7 @@ function App() {
         '--output', audioPath,
         '--text', seg.text,
         '--start', seg.start.toString(),
+        '--duration', (seg.end - seg.start).toString(),
         '--lang', targetLang,
         '--json'
       ]);
@@ -446,7 +447,7 @@ function App() {
     }
 
     // Play new segment
-    const url = `file:///${audioPath.replace(/\\/g, '/')}`;
+    const url = `file:///${audioPath.replace(/\\/g, '/')}?t=${Date.now()}`;
     audioEl.src = url;
     audioEl.play().catch(e => {
       console.error("Audio play failed", e);

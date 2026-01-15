@@ -138,7 +138,6 @@ def run_batch_tts(tasks, model_dir=None, config_path=None, language="English"):
             use_deepspeed=False
         )
         
-        results = []
         total = len(tasks)
         
         for i, task in enumerate(tasks):
@@ -179,7 +178,6 @@ def run_batch_tts(tasks, model_dir=None, config_path=None, language="English"):
                     output_path=out,
                     verbose=False
                 )
-                results.append({"success": True, "output": out})
                 
                 # Emit Partial Result for UI to enable playback immediately
                 partial_data = {
@@ -188,10 +186,11 @@ def run_batch_tts(tasks, model_dir=None, config_path=None, language="English"):
                     "success": True
                 }
                 print(f"[PARTIAL] {json.dumps(partial_data)}", flush=True)
+                
+                yield {"success": True, "output": out}
 
             except Exception as e:
                 print(f"Failed task {i}: {e}")
-                results.append({"success": False, "error": str(e)})
                 
                 partial_data = {
                     "index": task.get('index', i),
@@ -199,15 +198,16 @@ def run_batch_tts(tasks, model_dir=None, config_path=None, language="English"):
                     "error": str(e)
                 }
                 print(f"[PARTIAL] {json.dumps(partial_data)}", flush=True)
+                
+                yield {"success": False, "error": str(e)}
             
             # Emit progress (mapping 20% to 100% of global, or just 0-100 local?)
             # Backend usually emits 0-100 for the specific action.
             print(f"[PROGRESS] {int((i + 1) / total * 100)}", flush=True)
 
-        return results
-        
     except Exception as e:
         print(f"Error during Batch TTS: {e}")
         import traceback
         traceback.print_exc()
-        return []
+        # No yield here as we can't continue loop
+        pass
