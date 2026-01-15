@@ -47,7 +47,6 @@ const TranslationPanel: React.FC<TranslationPanelProps> = ({
     dubbingLoading,
     onReTranslate,
     loading,
-    onPlaySegment,
     playingAudioIndex,
     activeIndex,
     onEditStart,
